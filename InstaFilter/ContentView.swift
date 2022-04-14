@@ -8,25 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var blurAmount = 0.0
+    @State private var showingConfirmation = false
+    @State private var backgroundColor = Color.primary
     
     var body: some View {
-        VStack {
-            Text("Hello, World")
-                .blur(radius: blurAmount)
-            
-            //adjusts $blurAmount not blurAmount so bypass the setter
-            Slider(value: $blurAmount, in: 0...20)
-                //applies to slider and button and .onChange can be placed anywhere in the code
-                .onChange(of: blurAmount) { newVal in
-                    print("New value is \(newVal)")
-                }
-            
-            Button("Random Blur") {
-                //goes through nonmutating setter so triggers the didSet
-                blurAmount = Double.random(in: 0...20)
+        Text("Hello World")
+            .frame(width: 300, height: 300)
+            .background(backgroundColor)
+            .onTapGesture {
+                showingConfirmation = true
             }
-        }
+        //layout very similar to .alert
+            .confirmationDialog("Change Background", isPresented: $showingConfirmation) {
+                Button("Red") { backgroundColor = .red }
+                Button("Blue") { backgroundColor = .blue }
+                Button("Green") { backgroundColor = .green }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("Select a new color")
+            }
     }
 }
 
