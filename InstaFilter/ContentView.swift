@@ -4,6 +4,7 @@
 //
 //  Created by Garret Poole on 4/12/22.
 //
+//App uses SwiftUI, CoreImage, PHPickerViewController
 
 import CoreImage
 import CoreImage.CIFilterBuiltins
@@ -15,10 +16,12 @@ struct ContentView: View {
     
     @State private var showingImagePicker = false
     @State private var inputImage: UIImage?
-    
-    @State private var currentFilter = CIFilter.sepiaTone()
+    //must specify general CIFilter bc "=" means it has to conform to sepiaTone as well
+    @State private var currentFilter: CIFilter = CIFilter.sepiaTone()
     //context take a lot of work to reate so just create once and keep alive
     let context = CIContext()
+    
+    @State private var showingFilterSheet = false
     
     var body: some View {
         NavigationView {
@@ -50,7 +53,7 @@ struct ContentView: View {
                 
                 HStack {
                     Button("Change Filter") {
-                        //change filter
+                        showingFilterSheet = true
                     }
                     Spacer()
                     Button("Save", action: save)
@@ -62,6 +65,15 @@ struct ContentView: View {
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(image: $inputImage)
             }
+            .confirmationDialog("Select a filter", isPresented: $showingFilterSheet) {
+                Button("Crystallize") { setFilter(CIFilter.crystallize()) }
+                Button("Edges") { setFilter(CIFilter.edges()) }
+                Button("Gaussian Blur") { setFilter(CIFilter.gaussianBlur()) }
+                Button("Sepia Tone") { setFilter(CIFilter.sepiaTone()) }
+                Button("Unsharp Mask") { setFilter(CIFilter.unsharpMask()) }
+                Button("Vibrance") { setFilter(CIFilter.vibrance()) }
+                Button("Cancel", role: .cancel) { }
+            }
         }
     }
     
@@ -69,6 +81,7 @@ struct ContentView: View {
         guard let inputImage = inputImage else { return }
         
         let beginImage = CIImage(image: inputImage)
+        //kCIInputImageKey is stringly typed behind the scenes
         currentFilter.setValue(beginImage, forKey: kCIInputImageKey)
         applyProcessing()
     }
@@ -78,13 +91,32 @@ struct ContentView: View {
     }
     
     func applyProcessing() {
-        currentFilter.intensity = Float(filterintensity)
+        let inputKeys = currentFilter.inputKeys
+        //changed bc .intenstiy came from the sepiaTone type conformation
+        //need safety for different filters (some dont have intensity)
+        if inputKeys.contains(kCIInputIntensityKey) {
+            currentFilter.setValue(filterintensity, forKey: kCIInputIntensityKey)
+        }
+        if inputKeys.contains(kCIInputRadiusKey) {
+            currentFilter.setValue(filterintensity*100, forKey: kCIInputRadiusKey)
+        }
+        if inputKeys.contains(kCIInputScaleKey) {
+            currentFilter.setValue(filterintensity*10, forKey: kCIInputScaleKey)
+        }
+        if inputKeys.contains(kCIInputAmountKey) {
+            currentFilter.setValue(filterintensity*10, forKey: kCIInputAmountKey)
+        }
         
         guard let outputImage = currentFilter.outputImage else { return }
         if let cgimg = context.createCGImage(outputImage, from: outputImage.extent) {
             let uiImage = UIImage(cgImage: cgimg)
             image = Image(uiImage: uiImage)
         }
+    }
+    
+    func setFilter(_ filter: CIFilter) {
+        currentFilter = filter
+        loadImage()
     }
 }
 
