@@ -102,6 +102,7 @@ struct ContentView: View {
             .sheet(isPresented: $showingImagePicker) {
                 ImagePicker(image: $inputImage, cannotSave: $cannotSave)
             }
+            //all filters and their keys can be found at https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html
             .confirmationDialog("Select a filter", isPresented: $showingFilterSheet) {
                 Button("Crystallize") { setFilter(CIFilter.crystallize()) }
                 Button("Edges") { setFilter(CIFilter.edges()) }
