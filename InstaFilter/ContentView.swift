@@ -12,7 +12,11 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var image: Image?
+    
     @State private var filterintensity = 0.5
+    @State private var filterradius = 0.5
+    @State private var filterscale = 0.5
+    @State private var filteramount = 0.5
     
     @State private var showingImagePicker = false
     @State private var inputImage: UIImage?
@@ -46,15 +50,42 @@ struct ContentView: View {
                 .onTapGesture {
                     showingImagePicker = true
                 }
-                
-                HStack {
-                    Text("Intensity")
-                    //changing binding directly doesnt reinvoke body property
-                    //so need onChange for ui to update
-                    Slider(value: $filterintensity)
-                        .onChange(of: filterintensity) { _ in applyProcessing() }
+                ForEach(currentFilter.inputKeys, id: \.self) { inputKey in
+                    if inputKey == kCIInputIntensityKey {
+                        HStack{
+                            Text("Intensity")
+                            //changing binding directly doesnt reinvoke body property
+                            //so need onChange for ui to update
+                            Slider(value: $filterintensity)
+                                .onChange(of: filterintensity) { _ in applyProcessing() }
+                        }
+                        .padding(.vertical)
+                    }
+                    if inputKey == kCIInputRadiusKey {
+                        HStack{
+                            Text("Radius")
+                            Slider(value: $filterradius)
+                                .onChange(of: filterradius) { _ in applyProcessing() }
+                        }
+                        .padding(.vertical)
+                    }
+                    if inputKey == kCIInputScaleKey {
+                        HStack{
+                            Text("Scale")
+                            Slider(value: $filterscale)
+                                .onChange(of: filterscale) { _ in applyProcessing() }
+                        }
+                        .padding(.vertical)
+                    }
+                    if inputKey == kCIInputAmountKey {
+                        HStack{
+                            Text("Amount")
+                            Slider(value: $filteramount)
+                                .onChange(of: filteramount) { _ in applyProcessing() }
+                        }
+                        .padding(.vertical)
+                    }
                 }
-                .padding(.vertical)
                 
                 HStack {
                     Button("Change Filter") {
@@ -114,13 +145,13 @@ struct ContentView: View {
             currentFilter.setValue(filterintensity, forKey: kCIInputIntensityKey)
         }
         if inputKeys.contains(kCIInputRadiusKey) {
-            currentFilter.setValue(filterintensity*100, forKey: kCIInputRadiusKey)
+            currentFilter.setValue(filterradius*100, forKey: kCIInputRadiusKey)
         }
         if inputKeys.contains(kCIInputScaleKey) {
-            currentFilter.setValue(filterintensity*10, forKey: kCIInputScaleKey)
+            currentFilter.setValue(filterscale*10, forKey: kCIInputScaleKey)
         }
         if inputKeys.contains(kCIInputAmountKey) {
-            currentFilter.setValue(filterintensity*10, forKey: kCIInputAmountKey)
+            currentFilter.setValue(filteramount*10, forKey: kCIInputAmountKey)
         }
         
         guard let outputImage = currentFilter.outputImage else { return }
