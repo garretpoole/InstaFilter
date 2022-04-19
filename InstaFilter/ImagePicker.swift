@@ -11,6 +11,10 @@ import SwiftUI
 //makes view that can go inside swiftUI
 struct ImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
+    
+    //for allowing save
+    @Binding var cannotSave: Bool
+    
     //acts as delegate for PickerVC
     //talks between UIkit and SwiftUI
     class Coordinator: NSObject, PHPickerViewControllerDelegate {
@@ -29,6 +33,7 @@ struct ImagePicker: UIViewControllerRepresentable {
                 provider.loadObject(ofClass: UIImage.self) { image, _ in
                     //type case here bc image can be any data type
                     self.parent.image = image as? UIImage
+                    self.parent.cannotSave = false
                 }
             }
         }

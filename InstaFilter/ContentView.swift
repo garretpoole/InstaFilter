@@ -23,6 +23,9 @@ struct ContentView: View {
     //context take a lot of work to reate so just create once and keep alive
     let context = CIContext()
     
+    //allow save
+    @State private var cannotSave = true
+    
     @State private var showingFilterSheet = false
     
     var body: some View {
@@ -59,13 +62,14 @@ struct ContentView: View {
                     }
                     Spacer()
                     Button("Save", action: save)
+                        .disabled(cannotSave)
                 }
             }
             .padding([.horizontal, .bottom])
             .navigationTitle("InstaFilter")
             .onChange(of: inputImage) { _ in loadImage() }
             .sheet(isPresented: $showingImagePicker) {
-                ImagePicker(image: $inputImage)
+                ImagePicker(image: $inputImage, cannotSave: $cannotSave)
             }
             .confirmationDialog("Select a filter", isPresented: $showingFilterSheet) {
                 Button("Crystallize") { setFilter(CIFilter.crystallize()) }
